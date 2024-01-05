@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const PORT = process.env.PORT || 4242;
-const domain = process.env.ENVIRONMENT === "development" ? process.env.LOCAL_DOMAIN : process.env.PRODUCTION_DOMAIN ;
+const domain = process.env.ENVIRONMENT === "production" ? process.env.PRODUCTION_DOMAIN : process.env.LOCAL_DOMAIN;
 
 const corsOptions = {
   origin: domain,
