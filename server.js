@@ -32,7 +32,8 @@ const stripePaymentConfig = {
 app.use(
   rateLimit({
     windowMs: 15* 60 * 1000,
-    max: 5 // 5 requests,
+    max: 5, // 5 requests,
+    validate: {xForwardedForHeader: false}
   })
 );
 app.use(helmet());
@@ -50,8 +51,7 @@ app.use(
     expressFormat: true,
     ignoreRoute() {
       return false;
-    },
-    validate: {xForwardedForHeader: false}
+    }
   })
 );
 
