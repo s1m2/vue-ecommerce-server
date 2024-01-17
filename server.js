@@ -4,6 +4,11 @@ const express = require("express");
 const cors = require("cors");
 const Stripe = require("stripe");
 const bodyParser = require("body-parser");
+const rateLimit = require("express-rate-limit");
+const winston = require("winston");
+const expressWinston = require("express-winston");
+const responseTime = require("response-time");
+const helmet = require("helmet");
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
@@ -24,8 +29,30 @@ const stripePaymentConfig = {
   }
 };
 
+app.use(
+  rateLimit({
+    windowMs: 15* 60 * 1000,
+    max: 5 // 5 requests,
+  })
+);
+app.use(helmet());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(responseTime());
+app.use(
+  expressWinston.logger({
+    transports: [new winston.transports.Console()],
+    format: winston.format.json(),
+    statusLevels: true,
+    meta: false,
+    msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
+    expressFormat: true,
+    ignoreRoute() {
+      return false;
+    },
+  })
+);
 
 app.post("/create-payment-intent", async (req, res) => {
   const { amount } = req.body;
@@ -36,7 +63,6 @@ app.post("/create-payment-intent", async (req, res) => {
       amount: amount,
       ...stripePaymentConfig
     });
-
     return res.status(200).send({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     return res.status(error.statusCode).json({ message: error.message });
