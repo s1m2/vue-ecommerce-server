@@ -33,7 +33,7 @@ app.use(
   rateLimit({
     windowMs: 15* 60 * 1000,
     max: 5, // 5 requests,
-    validate: {xForwardedForHeader: false}
+    // validate: { xForwardedForHeader: false }
   })
 );
 app.use(helmet());
