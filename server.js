@@ -51,6 +51,7 @@ app.use(
     ignoreRoute() {
       return false;
     },
+    validate: {xForwardedForHeader: false}
   })
 );
 
